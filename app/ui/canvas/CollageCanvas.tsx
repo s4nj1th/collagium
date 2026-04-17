@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Group, Image as KonvaImage, Layer, Rect, Stage, Text as KonvaText } from "react-konva";
-import type Konva from "konva";
+import Konva from "konva";
 import type { CollageImage, ImageFrame, ElementType } from "@/app/lib/types";
 import { useCanvasStore } from "@/app/ui/canvas/useCanvasStore";
 import { usePlacementStore } from "@/app/ui/canvas/usePlacementStore";
@@ -199,6 +199,13 @@ function useHTMLImage(src: string | null) {
   return img;
 }
 
+const isGif = (url: string | null | undefined) => {
+  if (!url) return false;
+  // Handle both standard extensions and Supabase URLs with query params
+  const clean = url.split("?")[0].toLowerCase();
+  return clean.endsWith(".gif");
+};
+
 export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageImage[] }>(
   ({ images }, ref) => {
     const stageRef = useRef<Konva.Stage>(null);
@@ -206,6 +213,7 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
     const { stageScale, stageX, stageY, setViewport, setViewingElement } = useCanvasStore();
     const placement = usePlacementStore();
     const theme = useThemeStore((s) => s.theme);
+    const imgLayerRef = useRef<Konva.Layer>(null);
 
     useImperativeHandle(ref, () => ({
       download: () => {
@@ -224,6 +232,29 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
     }));
 
     const previewImg = useHTMLImage(placement.previewUrl);
+
+    // GIF animation effect
+    useEffect(() => {
+      const stage = stageRef.current;
+      const layer = imgLayerRef.current;
+      if (!stage || !layer) return;
+
+      const hasGifs = 
+        images.some(img => img.element_type === "image" && isGif(img.url)) ||
+        (placement.element_type === "image" && (isGif(placement.previewUrl) || placement.file?.type === "image/gif"));
+
+      if (!hasGifs) return;
+
+      const anim = new Konva.Animation(() => {
+        // Redrawing the layer makes GIF frames visible
+        layer.batchDraw();
+      }, layer);
+
+      anim.start();
+      return () => {
+        anim.stop();
+      };
+    }, [images, placement.previewUrl, placement.element_type]);
 
   const sorted = useMemo(() => {
     return [...images].sort((a, b) => (a.z_index ?? 0) - (b.z_index ?? 0));
@@ -263,19 +294,18 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
     e.evt.preventDefault();
     const stage = stageRef.current;
     if (!stage) return;
-
-    const oldScale = stageScale;
+    const scaleBy = 1.08;
+    const oldScale = stage.scaleX();
     const pointer = stage.getPointerPosition();
     if (!pointer) return;
 
-    const scaleBy = 1.06;
     const direction = e.evt.deltaY > 0 ? -1 : 1;
     const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
-    const clamped = Math.max(0.15, Math.min(4, newScale));
+    const clamped = Math.max(0.1, Math.min(5, newScale));
 
     const mousePointTo = {
-      x: (pointer.x - stageX) / oldScale,
-      y: (pointer.y - stageY) / oldScale,
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
     };
 
     const newPos = {
@@ -294,14 +324,18 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
         const stage = stageRef.current;
         if (!stage) return;
 
+        const currentScale = stage.scaleX();
+        const currentX = stage.x();
+        const currentY = stage.y();
+
         // Calculate drop position
         const rect = e.currentTarget.getBoundingClientRect();
         const dropX = e.clientX - rect.left;
         const dropY = e.clientY - rect.top;
 
         // Map to canvas coords
-        const canvasX = (dropX - stageX) / stageScale;
-        const canvasY = (dropY - stageY) / stageScale;
+        const canvasX = (dropX - currentX) / currentScale;
+        const canvasY = (dropY - currentY) / currentScale;
 
         // Check for files first
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
@@ -338,7 +372,11 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
         scaleX={stageScale}
         scaleY={stageScale}
         draggable
-        onDragEnd={(e) => setViewport({ stageX: e.target.x(), stageY: e.target.y() })}
+        onDragEnd={(e) => {
+          if (e.target === stageRef.current) {
+            setViewport({ stageX: e.target.x(), stageY: e.target.y() });
+          }
+        }}
         onWheel={onWheel}
         className="touch-none select-none"
       >
@@ -358,7 +396,7 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
           />
         </Layer>
 
-        <Layer>
+        <Layer ref={imgLayerRef}>
           {sorted.map((img) => {
             const isText = img.element_type === "text";
             const el = !isText ? imageElements.get(img.url || "") : undefined;
