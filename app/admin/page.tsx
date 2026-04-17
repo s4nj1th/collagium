@@ -95,6 +95,16 @@ export default function AdminPage() {
     }
   };
 
+  const bringToFront = async (id: string) => {
+    const maxZ = images.length > 0 ? Math.max(...images.map((i) => i.z_index)) : 0;
+    await patch(id, { z_index: maxZ + 1 });
+  };
+
+  const sendToBack = async (id: string) => {
+    const minZ = images.length > 0 ? Math.min(...images.map((i) => i.z_index)) : 0;
+    await patch(id, { z_index: minZ - 1 });
+  };
+
   return (
     <div className="min-h-full bg-zinc-50 text-zinc-950 dark:bg-black dark:text-zinc-50">
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10">
@@ -181,14 +191,29 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="mt-3 aspect-video w-full overflow-hidden rounded-xl bg-black/5 dark:bg-black/30">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={img.url}
-                  alt=""
-                  className="h-full w-full object-contain"
-                  loading="lazy"
-                />
+              <div className="mt-3 aspect-video w-full overflow-hidden rounded-xl bg-black/5 dark:bg-black/30 flex items-center justify-center p-4">
+                {img.element_type === "text" ? (
+                  <div 
+                    className="text-center text-xl text-zinc-800 dark:text-zinc-100"
+                    style={{ fontFamily: "var(--font-caveat)" }}
+                  >
+                    {img.text_content}
+                  </div>
+                ) : (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={img.url}
+                    alt=""
+                    className="h-full w-full object-contain"
+                    loading="lazy"
+                  />
+                )}
+              </div>
+
+              <div className="mt-2 flex items-center gap-2">
+                <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                  {img.element_type}
+                </span>
               </div>
 
               <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-zinc-600 dark:text-zinc-300">
@@ -249,19 +274,19 @@ export default function AdminPage() {
                 </button>
                 <button
                   className="h-9 rounded-xl bg-black/5 px-3 text-sm font-semibold text-zinc-800 hover:bg-black/10 disabled:opacity-50 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
-                  onClick={() => void patch(img.id, { z_index: img.z_index + 1 })}
+                  onClick={() => void bringToFront(img.id)}
                   disabled={!canQuery || busy}
                   type="button"
                 >
-                  Z +1
+                  Bring Front
                 </button>
                 <button
                   className="h-9 rounded-xl bg-black/5 px-3 text-sm font-semibold text-zinc-800 hover:bg-black/10 disabled:opacity-50 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
-                  onClick={() => void patch(img.id, { z_index: img.z_index - 1 })}
+                  onClick={() => void sendToBack(img.id)}
                   disabled={!canQuery || busy}
                   type="button"
                 >
-                  Z -1
+                  Send Back
                 </button>
                 <button
                   className="ml-auto h-9 rounded-xl bg-red-500 px-3 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"

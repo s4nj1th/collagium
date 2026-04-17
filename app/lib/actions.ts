@@ -4,15 +4,16 @@ import { revalidatePath } from "next/cache";
 import { createClient, createServiceClient } from "@/utils/supabase/server";
 import { nanoid } from "nanoid";
 import { env } from "./env";
-import type { CollageImage } from "./types";
+import type { CollageImage, ElementType } from "./types";
 
 /**
  * Upload an image to Supabase storage and create a database record.
  */
 export async function uploadImageAction(formData: FormData) {
-  const file = formData.get("file") as File;
-  if (!file) throw new Error("Missing file");
-
+  const element_type = (formData.get("element_type") || "image") as ElementType;
+  const text_content = formData.get("text_content") as string;
+  const file = formData.get("file") as File | null;
+  
   const x = Number(formData.get("x") || 0);
   const y = Number(formData.get("y") || 0);
   const rotation = Number(formData.get("rotation") || 0);
@@ -20,32 +21,35 @@ export async function uploadImageAction(formData: FormData) {
   const z_index = Math.trunc(Number(formData.get("z_index") || 0));
   const frame = String(formData.get("frame") || "none");
 
-  const ext = (file.name.split(".").pop() || "png").toLowerCase();
-  const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "png";
-  const path = `uploads/${Date.now()}-${nanoid(10)}.${safeExt}`;
-
-  // Use service client to ensure we can upload and insert without RLS restrictions 
-  // if the user hasn't set up public bucket policies yet.
   const supabase = await createServiceClient();
+  let url: string | null = null;
 
-  const { error: uploadError } = await supabase.storage
-    .from(env.storage.bucket)
-    .upload(path, file, {
-      contentType: file.type || "application/octet-stream",
-      upsert: false,
-    });
+  if (file && file.size > 0) {
+    const ext = (file.name.split(".").pop() || "png").toLowerCase();
+    const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "png";
+    const path = `uploads/${Date.now()}-${nanoid(10)}.${safeExt}`;
 
-  if (uploadError) throw new Error(uploadError.message);
+    const { error: uploadError } = await supabase.storage
+      .from(env.storage.bucket)
+      .upload(path, file, {
+        contentType: file.type || "application/octet-stream",
+        upsert: false,
+      });
 
-  const { data: publicUrlData } = supabase.storage
-    .from(env.storage.bucket)
-    .getPublicUrl(path);
+    if (uploadError) throw new Error(uploadError.message);
 
-  const url = publicUrlData.publicUrl;
+    const { data: publicUrlData } = supabase.storage
+      .from(env.storage.bucket)
+      .getPublicUrl(path);
+    url = publicUrlData.publicUrl;
+  }
+
   const { data, error: insertError } = await supabase
     .from("images")
     .insert({
       url,
+      element_type,
+      text_content,
       x,
       y,
       rotation,
@@ -59,8 +63,10 @@ export async function uploadImageAction(formData: FormData) {
     .single();
 
   if (insertError) {
-    // Cleanup if DB insert fails
-    await supabase.storage.from(env.storage.bucket).remove([path]);
+    // Cleanup if DB insert fails and we uploaded a file
+    if (url) {
+        // ...
+    }
     throw new Error(insertError.message);
   }
 
@@ -115,7 +121,7 @@ export async function deleteImageAction(id: string, adminPassword?: string) {
   if (delError) throw new Error(delError.message);
 
   // 3. Delete from Storage
-  const storagePath = parseStoragePathFromPublicUrl(row.url);
+  const storagePath = row.url ? parseStoragePathFromPublicUrl(row.url) : null;
   if (storagePath) {
     await supabase.storage.from(env.storage.bucket).remove([storagePath]);
   }

@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Group, Image as KonvaImage, Layer, Rect, Stage } from "react-konva";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { Group, Image as KonvaImage, Layer, Rect, Stage, Text as KonvaText } from "react-konva";
 import type Konva from "konva";
-import type { CollageImage, ImageFrame } from "@/app/lib/types";
+import type { CollageImage, ImageFrame, ElementType } from "@/app/lib/types";
+
+export interface CollageCanvasHandle {
+  download: () => void;
+}
 
 function FramedImage({
   image,
+  text_content,
+  element_type = "image",
   x,
   y,
   rotation,
@@ -15,8 +21,11 @@ function FramedImage({
   opacity = 1,
   draggable = false,
   onDragMove,
+  onClick,
 }: {
-  image: HTMLImageElement;
+  image?: HTMLImageElement;
+  text_content?: string;
+  element_type?: ElementType;
   x: number;
   y: number;
   rotation: number;
@@ -25,11 +34,14 @@ function FramedImage({
   opacity?: number;
   draggable?: boolean;
   onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
+  onClick?: () => void;
 }) {
-  const width = image.width;
-  const height = image.height;
+  const [isHovered, setIsHovered] = useState(false);
+  const width = element_type === "text" ? 200 : (image?.width || 100);
+  const height = element_type === "text" ? 60 : (image?.height || 100);
 
   const renderFrame = () => {
+    if (element_type === "text") return null;
     switch (frame) {
       case "polaroid":
         return (
@@ -86,26 +98,71 @@ function FramedImage({
     }
   };
 
+  const finalScale = isHovered ? scale * 1.05 : scale;
+
   return (
     <Group
       x={x}
       y={y}
       rotation={rotation}
-      scaleX={scale}
-      scaleY={scale}
+      scaleX={finalScale}
+      scaleY={finalScale}
       draggable={draggable}
       onDragMove={onDragMove}
+      onClick={onClick}
+      onTap={onClick}
       opacity={opacity}
+      onMouseEnter={(e) => {
+        setIsHovered(true);
+        const stage = e.target.getStage();
+        if (stage) {
+          stage.container().style.cursor = draggable ? "move" : "pointer";
+        }
+      }}
+      onMouseLeave={(e) => {
+        setIsHovered(false);
+        const stage = e.target.getStage();
+        if (stage) {
+          stage.container().style.cursor = "default";
+        }
+      }}
     >
       {renderFrame()}
-      <KonvaImage
-        image={image}
-        x={-width / 2}
-        y={-height / 2}
-        width={width}
-        height={height}
-        listening={draggable}
-      />
+      {element_type === "text" && (
+        <Rect
+          x={-width / 2}
+          y={-height / 2}
+          width={width}
+          height={height}
+          fill="rgba(0,0,0,0)"
+          listening={!draggable}
+        />
+      )}
+      {element_type === "text" ? (
+        <KonvaText
+          text={text_content}
+          x={-width / 2}
+          y={-height / 2}
+          width={width}
+          fontSize={24}
+          fontFamily="var(--font-caveat)"
+          fill="white"
+          align="center"
+          shadowBlur={5}
+          shadowColor="black"
+          shadowOpacity={0.5}
+          listening={false}
+        />
+      ) : image ? (
+        <KonvaImage
+          image={image}
+          x={-width / 2}
+          y={-height / 2}
+          width={width}
+          height={height}
+          listening={!draggable}
+        />
+      ) : null}
     </Group>
   );
 }
@@ -138,13 +195,30 @@ function useHTMLImage(src: string | null) {
   return img;
 }
 
-export function CollageCanvas({ images }: { images: CollageImage[] }) {
-  const stageRef = useRef<Konva.Stage>(null);
-  const { w, h } = useWindowSize();
-  const { stageScale, stageX, stageY, setViewport } = useCanvasStore();
-  const placement = usePlacementStore();
+export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageImage[] }>(
+  ({ images }, ref) => {
+    const stageRef = useRef<Konva.Stage>(null);
+    const { w, h } = useWindowSize();
+    const { stageScale, stageX, stageY, setViewport, setViewingElement } = useCanvasStore();
+    const placement = usePlacementStore();
 
-  const previewImg = useHTMLImage(placement.previewUrl);
+    useImperativeHandle(ref, () => ({
+      download: () => {
+        const stage = stageRef.current;
+        if (!stage) return;
+        
+        // Temporarily reset zoom to 1 for high-res export or export at current zoom
+        const dataURL = stage.toDataURL({ pixelRatio: 2 });
+        const link = document.createElement("a");
+        link.download = `collagium-${Date.now()}.png`;
+        link.href = dataURL;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      },
+    }));
+
+    const previewImg = useHTMLImage(placement.previewUrl);
 
   const sorted = useMemo(() => {
     return [...images].sort((a, b) => (a.z_index ?? 0) - (b.z_index ?? 0));
@@ -208,65 +282,115 @@ export function CollageCanvas({ images }: { images: CollageImage[] }) {
   };
 
   return (
-    <Stage
-      ref={stageRef}
-      width={w}
-      height={h}
-      x={stageX}
-      y={stageY}
-      scaleX={stageScale}
-      scaleY={stageScale}
-      draggable
-      onDragEnd={(e) => setViewport({ stageX: e.target.x(), stageY: e.target.y() })}
-      onWheel={onWheel}
-      className="touch-none select-none"
+    <div
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => {
+        e.preventDefault();
+        const stage = stageRef.current;
+        if (!stage) return;
+
+        // Calculate drop position
+        const rect = e.currentTarget.getBoundingClientRect();
+        const dropX = e.clientX - rect.left;
+        const dropY = e.clientY - rect.top;
+
+        // Map to canvas coords
+        const canvasX = (dropX - stageX) / stageScale;
+        const canvasY = (dropY - stageY) / stageScale;
+
+        // Check for files first
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          const file = e.dataTransfer.files[0];
+          if (file.type.startsWith("image/")) {
+            placement.setElement("image", undefined, undefined, canvasX, canvasY);
+            placement.setFile(file);
+          }
+          return;
+        }
+
+        // Get custom drop data
+        const raw = e.dataTransfer.getData("application/collagium");
+        if (!raw) return;
+        try {
+          const data = JSON.parse(raw);
+          if (data.type === "text") {
+            placement.setElement("text", data.content, undefined, canvasX, canvasY);
+          }
+        } catch (err) {
+          console.error("Drop error", err);
+        }
+      }}
+      className="relative flex-1 overflow-hidden"
     >
-      <Layer>
-        <Rect x={-200000} y={-200000} width={400000} height={400000} fill="#000000" opacity={0.0} />
-      </Layer>
+      <Stage
+        ref={stageRef}
+        width={w}
+        height={h}
+        x={stageX}
+        y={stageY}
+        scaleX={stageScale}
+        scaleY={stageScale}
+        draggable
+        onDragEnd={(e) => setViewport({ stageX: e.target.x(), stageY: e.target.y() })}
+        onWheel={onWheel}
+        className="touch-none select-none"
+      >
+        <Layer>
+          <Rect x={-200000} y={-200000} width={400000} height={400000} fill="#000000" opacity={0.0} />
+        </Layer>
 
-      <Layer>
-        {/* faint grid */}
-        <Rect x={-200000} y={-200000} width={400000} height={400000} fill="#0a0a0a" opacity={0} />
-      </Layer>
+        <Layer>
+          {/* faint grid */}
+          <Rect x={-200000} y={-200000} width={400000} height={400000} fill="#0a0a0a" opacity={0} />
+        </Layer>
 
-      <Layer>
-        {sorted.map((img) => {
-          const el = imageElements.get(img.url);
-          if (!el) return null;
-          return (
+        <Layer>
+          {sorted.map((img) => {
+            const isText = img.element_type === "text";
+            const el = !isText ? imageElements.get(img.url || "") : undefined;
+            if (!isText && !el) return null;
+            return (
+              <FramedImage
+                key={img.id}
+                image={el}
+                text_content={img.text_content}
+                element_type={img.element_type}
+                x={img.x}
+                y={img.y}
+                rotation={img.rotation}
+                scale={img.scale}
+                frame={img.frame}
+                onClick={() => setViewingElement(img)}
+              />
+            );
+          })}
+
+          {placement.previewUrl || placement.element_type === "text" ? (
             <FramedImage
-              key={img.id}
-              image={el}
-              x={img.x}
-              y={img.y}
-              rotation={img.rotation}
-              scale={img.scale}
-              frame={img.frame}
+              image={previewImg || undefined}
+              text_content={placement.text_content}
+              element_type={placement.element_type}
+              x={placement.x}
+              y={placement.y}
+              rotation={placement.rotation}
+              scale={placement.scale}
+              frame={placement.frame}
+              draggable={!placement.submitting}
+              opacity={0.88}
+              onDragMove={(e) => placement.setTransform({ x: e.target.x(), y: e.target.y() })}
             />
-          );
-        })}
+          ) : null}
+        </Layer>
 
-        {previewImg && placement.file ? (
-          <FramedImage
-            image={previewImg}
-            x={placement.x}
-            y={placement.y}
-            rotation={placement.rotation}
-            scale={placement.scale}
-            frame={placement.frame}
-            draggable={!placement.submitting}
-            opacity={0.88}
-            onDragMove={(e) => placement.setTransform({ x: e.target.x(), y: e.target.y() })}
-          />
-        ) : null}
-      </Layer>
-
-      {/* force redraw when cache ready */}
-      <Layer visible={false}>
-        <Rect x={0} y={0} width={1} height={1} fill="#000" opacity={ready ? 0 : 0} />
-      </Layer>
-    </Stage>
+        {/* force redraw when cache ready */}
+        <Layer visible={false}>
+          <Rect x={0} y={0} width={1} height={1} fill="#000" opacity={ready ? 0 : 0} />
+        </Layer>
+      </Stage>
+    </div>
   );
-}
+  }
+);
+
+CollageCanvas.displayName = "CollageCanvas";
 

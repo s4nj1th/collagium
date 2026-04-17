@@ -1,9 +1,12 @@
 export type ImageStatus = "pending" | "approved" | "rejected";
 export type ImageFrame = "none" | "polaroid" | "minimal" | "canvas" | "modern";
+export type ElementType = "image" | "text";
 
 export type CollageImage = {
   id: string;
-  url: string;
+  url?: string;
+  element_type: ElementType;
+  text_content?: string;
   x: number;
   y: number;
   rotation: number;

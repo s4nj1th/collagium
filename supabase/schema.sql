@@ -1,7 +1,9 @@
 -- Create the images table
 create table if not exists public.images (
   id uuid primary key default gen_random_uuid(),
-  url text not null,
+  url text,
+  element_type text not null default 'image',
+  text_content text,
   x double precision not null default 0,
   y double precision not null default 0,
   rotation double precision not null default 0,
