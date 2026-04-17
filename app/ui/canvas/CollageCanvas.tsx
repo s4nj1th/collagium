@@ -1,9 +1,114 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Image as KonvaImage, Layer, Rect, Stage } from "react-konva";
+import { Group, Image as KonvaImage, Layer, Rect, Stage } from "react-konva";
 import type Konva from "konva";
-import type { CollageImage } from "@/app/lib/types";
+import type { CollageImage, ImageFrame } from "@/app/lib/types";
+
+function FramedImage({
+  image,
+  x,
+  y,
+  rotation,
+  scale,
+  frame = "none",
+  opacity = 1,
+  draggable = false,
+  onDragMove,
+}: {
+  image: HTMLImageElement;
+  x: number;
+  y: number;
+  rotation: number;
+  scale: number;
+  frame?: ImageFrame;
+  opacity?: number;
+  draggable?: boolean;
+  onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
+}) {
+  const width = image.width;
+  const height = image.height;
+
+  const renderFrame = () => {
+    switch (frame) {
+      case "polaroid":
+        return (
+          <Rect
+            x={-width / 2 - width * 0.05}
+            y={-height / 2 - height * 0.05}
+            width={width * 1.1}
+            height={height * 1.25}
+            fill="white"
+            shadowBlur={10}
+            shadowColor="black"
+            shadowOpacity={0.3}
+            shadowOffset={{ x: 5, y: 5 }}
+          />
+        );
+      case "minimal":
+        return (
+          <Rect
+            x={-width / 2 - 2}
+            y={-height / 2 - 2}
+            width={width + 4}
+            height={height + 4}
+            fill="white"
+            shadowBlur={5}
+            shadowOpacity={0.2}
+          />
+        );
+      case "canvas":
+        return (
+          <Rect
+            x={-width / 2 - 15}
+            y={-height / 2 - 15}
+            width={width + 30}
+            height={height + 30}
+            fill="white"
+            shadowBlur={15}
+            shadowOpacity={0.4}
+          />
+        );
+      case "modern":
+        return (
+          <Rect
+            x={-width / 2 - 15}
+            y={-height / 2 - 15}
+            width={width + 30}
+            height={height + 30}
+            fill="#111"
+            shadowBlur={15}
+            shadowOpacity={0.6}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Group
+      x={x}
+      y={y}
+      rotation={rotation}
+      scaleX={scale}
+      scaleY={scale}
+      draggable={draggable}
+      onDragMove={onDragMove}
+      opacity={opacity}
+    >
+      {renderFrame()}
+      <KonvaImage
+        image={image}
+        x={-width / 2}
+        y={-height / 2}
+        width={width}
+        height={height}
+        listening={draggable}
+      />
+    </Group>
+  );
+}
 import { useCanvasStore } from "@/app/ui/canvas/useCanvasStore";
 import { usePlacementStore } from "@/app/ui/canvas/usePlacementStore";
 
@@ -130,31 +235,26 @@ export function CollageCanvas({ images }: { images: CollageImage[] }) {
           const el = imageElements.get(img.url);
           if (!el) return null;
           return (
-            <KonvaImage
+            <FramedImage
               key={img.id}
               image={el}
               x={img.x}
               y={img.y}
-              offsetX={el.width / 2}
-              offsetY={el.height / 2}
               rotation={img.rotation}
-              scaleX={img.scale}
-              scaleY={img.scale}
-              listening={false}
+              scale={img.scale}
+              frame={img.frame}
             />
           );
         })}
 
         {previewImg && placement.file ? (
-          <KonvaImage
+          <FramedImage
             image={previewImg}
             x={placement.x}
             y={placement.y}
-            offsetX={previewImg.width / 2}
-            offsetY={previewImg.height / 2}
             rotation={placement.rotation}
-            scaleX={placement.scale}
-            scaleY={placement.scale}
+            scale={placement.scale}
+            frame={placement.frame}
             draggable={!placement.submitting}
             opacity={0.88}
             onDragMove={(e) => placement.setTransform({ x: e.target.x(), y: e.target.y() })}

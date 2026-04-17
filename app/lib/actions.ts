@@ -18,6 +18,7 @@ export async function uploadImageAction(formData: FormData) {
   const rotation = Number(formData.get("rotation") || 0);
   const scale = Number(formData.get("scale") || 1);
   const z_index = Math.trunc(Number(formData.get("z_index") || 0));
+  const frame = String(formData.get("frame") || "none");
 
   const ext = (file.name.split(".").pop() || "png").toLowerCase();
   const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "png";
@@ -50,6 +51,7 @@ export async function uploadImageAction(formData: FormData) {
       rotation,
       scale,
       z_index,
+      frame,
       locked: false,
       status: "pending",
     })

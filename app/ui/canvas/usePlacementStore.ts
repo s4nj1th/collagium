@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import type { ImageFrame } from "@/app/lib/types";
 
 type PlacementState = {
   file: File | null;
@@ -10,9 +11,10 @@ type PlacementState = {
   rotation: number;
   scale: number;
   z_index: number;
+  frame: ImageFrame;
   submitting: boolean;
   setFile: (file: File | null) => void;
-  setTransform: (t: Partial<Pick<PlacementState, "x" | "y" | "rotation" | "scale" | "z_index">>) => void;
+  setTransform: (t: Partial<Pick<PlacementState, "x" | "y" | "rotation" | "scale" | "z_index" | "frame">>) => void;
   clear: () => void;
 };
 
@@ -24,6 +26,7 @@ export const usePlacementStore = create<PlacementState>((set, get) => ({
   rotation: 0,
   scale: 1,
   z_index: 0,
+  frame: "none",
   submitting: false,
   setFile: (file) => {
     const prev = get().previewUrl;
@@ -41,6 +44,7 @@ export const usePlacementStore = create<PlacementState>((set, get) => ({
       rotation: 0,
       scale: 1,
       z_index: 0,
+      frame: "none",
     });
   },
   setTransform: (t) => set(t),

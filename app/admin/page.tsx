@@ -212,6 +212,10 @@ export default function AdminPage() {
                   <div className="text-[11px] text-zinc-500 dark:text-zinc-400">locked</div>
                   <div className="font-mono">{img.locked ? "true" : "false"}</div>
                 </div>
+                <div>
+                  <div className="text-[11px] text-zinc-500 dark:text-zinc-400">frame</div>
+                  <div className="font-mono capitalize">{img.frame || "none"}</div>
+                </div>
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">

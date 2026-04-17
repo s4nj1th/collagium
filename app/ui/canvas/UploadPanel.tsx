@@ -49,6 +49,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
       fd.set("rotation", String(placement.rotation));
       fd.set("scale", String(placement.scale));
       fd.set("z_index", String(placement.z_index));
+      fd.set("frame", placement.frame);
 
       // Use Server Action instead of API route
       await uploadImageAction(fd);
@@ -62,6 +63,14 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
       usePlacementStore.setState({ submitting: false });
     }
   };
+
+  const frames: { id: string; name: string }[] = [
+    { id: "none", name: "None" },
+    { id: "polaroid", name: "Polaroid" },
+    { id: "minimal", name: "Minimal" },
+    { id: "canvas", name: "Canvas" },
+    { id: "modern", name: "Classic" },
+  ];
 
   return (
     <div className="flex flex-col gap-3">
@@ -81,6 +90,26 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
         </div>
         <div className="shrink-0 rounded-lg bg-white/10 px-2 py-1 text-xs text-white/70">
           Upload
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <span className="text-xs font-semibold text-white/60">Choose Frame</span>
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          {frames.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => placement.setTransform({ frame: f.id as any })}
+              className={[
+                "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
+                placement.frame === f.id
+                  ? "bg-white text-black"
+                  : "bg-white/10 text-white/70 hover:bg-white/15",
+              ].join(" ")}
+            >
+              {f.name}
+            </button>
+          ))}
         </div>
       </div>
 

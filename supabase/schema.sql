@@ -9,6 +9,7 @@ create table if not exists public.images (
   z_index integer not null default 0,
   locked boolean not null default false,
   status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  frame text not null default 'none',
   created_at timestamptz not null default now()
 );
 
