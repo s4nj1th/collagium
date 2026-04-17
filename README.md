@@ -6,6 +6,13 @@
 
 Collagium is a communal space designed for the quiet, slow-motion art of collective creation. Inspired by the spirit of shared canvases like Reddit's r/place, it offers a single, infinite acreage where anyone can contribute a piece of their world to a larger, ever-evolving picture.
 
+### Screenshots
+
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 1rem;" align="center">
+  <img src="screenshots/01.png" alt="Canvas" width="200"
+       style="border-radius: 6px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);" />
+</div>
+
 ### The Inspiration
 
 The project was born from a fascination with what happens when people are given a common ground to build upon. Like the digital social experiments that came before it, Collagium is based on the idea that individual expression, when placed side-by-side with others, forms a narrative that no single person could have conceived alone. It is about the friction and harmony that occurs when our personal inspirations overlap.
