@@ -142,7 +142,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
                 onChange={(e) => placement.setTransform({ text_content: e.target.value.slice(0, 100) })}
                 placeholder="Write a caption..."
                 className="w-full rounded-xl border border-border-glass bg-black/5 dark:bg-white/5 p-3 text-lg text-text-main outline-none focus:border-text-main/20"
-                style={{ fontFamily: "var(--font-caveat)" }}
+                style={{ fontFamily: "'Caveat'" }}
                 rows={2}
               />
               <div className="absolute bottom-2 right-3 text-[10px] text-text-main/30">

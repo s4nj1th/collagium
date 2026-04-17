@@ -150,8 +150,8 @@ function FramedImage({
           x={-width / 2}
           y={-height / 2}
           width={width}
-          fontSize={24}
-          fontFamily="var(--font-caveat)"
+          fontSize={48}
+          fontFamily="Caveat"
           fill="white"
           align="center"
           shadowBlur={5}
