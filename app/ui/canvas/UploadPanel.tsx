@@ -232,14 +232,24 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
   );
 }
 
-function ControlSlider({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+function ControlSlider({ 
+  label, 
+  value, 
+  onChange, 
+  ...props 
+}: { 
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">) {
   return (
     <label className="flex flex-col gap-1.5">
       <span className="text-[10px] font-bold uppercase tracking-wider opacity-40">{label}</span>
       <input
         type="range"
+        value={value}
         {...props}
-        onChange={(e) => props.onChange?.(Number(e.target.value) as any)}
+        onChange={(e) => onChange(Number(e.target.value))}
         className="h-1.5 w-full appearance-none rounded-lg bg-black/10 dark:bg-white/10 accent-text-main outline-none cursor-pointer"
       />
     </label>

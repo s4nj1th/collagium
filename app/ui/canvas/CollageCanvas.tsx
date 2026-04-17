@@ -4,6 +4,9 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState }
 import { Group, Image as KonvaImage, Layer, Rect, Stage, Text as KonvaText } from "react-konva";
 import type Konva from "konva";
 import type { CollageImage, ImageFrame, ElementType } from "@/app/lib/types";
+import { useCanvasStore } from "@/app/ui/canvas/useCanvasStore";
+import { usePlacementStore } from "@/app/ui/canvas/usePlacementStore";
+import { useThemeStore } from "@/app/lib/useThemeStore";
 
 export interface CollageCanvasHandle {
   download: () => void;
@@ -166,9 +169,6 @@ function FramedImage({
     </Group>
   );
 }
-import { useCanvasStore } from "@/app/ui/canvas/useCanvasStore";
-import { usePlacementStore } from "@/app/ui/canvas/usePlacementStore";
-import { useThemeStore } from "@/app/lib/useThemeStore";
 
 function useWindowSize() {
   const [size, setSize] = useState({ w: 800, h: 600 });
@@ -232,7 +232,7 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
   useEffect(() => {
     let alive = true;
     (async () => {
-      const toLoad = sorted.map((i) => i.url);
+      const toLoad = sorted.map((i) => i.url).filter((u): u is string => !!u);
       await Promise.all(
         toLoad.map(
           (url) =>
