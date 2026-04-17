@@ -24,6 +24,7 @@ function FramedImage({
   opacity = 1,
   draggable = false,
   onDragMove,
+  onDragEnd,
   onClick,
 }: {
   image?: HTMLImageElement;
@@ -37,6 +38,7 @@ function FramedImage({
   opacity?: number;
   draggable?: boolean;
   onDragMove?: (e: Konva.KonvaEventObject<DragEvent>) => void;
+  onDragEnd?: (e: Konva.KonvaEventObject<DragEvent>) => void;
   onClick?: () => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -112,6 +114,7 @@ function FramedImage({
       scaleY={finalScale}
       draggable={draggable}
       onDragMove={onDragMove}
+      onDragEnd={onDragEnd}
       onClick={onClick}
       onTap={onClick}
       opacity={opacity}
@@ -138,7 +141,7 @@ function FramedImage({
           width={width}
           height={height}
           fill="rgba(0,0,0,0)"
-          listening={!draggable}
+          listening={true}
         />
       )}
       {element_type === "text" ? (
@@ -163,7 +166,7 @@ function FramedImage({
           y={-height / 2}
           width={width}
           height={height}
-          listening={!draggable}
+          listening={true}
         />
       ) : null}
     </Group>
@@ -317,6 +320,8 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
           const data = JSON.parse(raw);
           if (data.type === "text") {
             placement.setElement("text", data.content, undefined, canvasX, canvasY);
+          } else if (data.type === "image_move") {
+            placement.setTransform({ x: canvasX, y: canvasY });
           }
         } catch (err) {
           console.error("Drop error", err);
@@ -386,7 +391,7 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
               frame={placement.frame}
               draggable={!placement.submitting}
               opacity={0.88}
-              onDragMove={(e) => placement.setTransform({ x: e.target.x(), y: e.target.y() })}
+              onDragEnd={(e) => placement.setTransform({ x: e.target.x(), y: e.target.y() })}
             />
           ) : null}
         </Layer>

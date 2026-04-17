@@ -120,6 +120,20 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
           </div>
         )}
 
+        {placement.element_type === "image" && placement.file && (
+          <div
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.setData("application/collagium", JSON.stringify({
+                type: "image_move"
+              }));
+            }}
+            className="mt-3 flex cursor-grab items-center justify-center gap-2 rounded-xl bg-black/10 dark:bg-white/10 py-2 text-xs font-bold uppercase tracking-wider text-text-main hover:bg-black/20 dark:hover:bg-white/20 active:cursor-grabbing"
+          >
+            <span>⠿</span> Drag to Canvas
+          </div>
+        )}
+
         {placement.element_type === "text" && (
           <div className="space-y-3">
             <div className="relative">
