@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { deleteImageAction, updateImageAction } from "@/app/lib/actions";
 import type { CollageImage, ImageStatus } from "@/app/lib/types";
 
 type AdminImage = CollageImage;
@@ -72,10 +73,7 @@ export default function AdminPage() {
     setError(null);
     setBusy(true);
     try {
-      await adminFetch<{ image: AdminImage }>(password, `/api/admin/images/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(body),
-      });
+      await updateImageAction(id, body, password);
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Update failed");
@@ -88,7 +86,7 @@ export default function AdminPage() {
     setError(null);
     setBusy(true);
     try {
-      await adminFetch<void>(password, `/api/admin/images/${id}`, { method: "DELETE" });
+      await deleteImageAction(id, password);
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Delete failed");

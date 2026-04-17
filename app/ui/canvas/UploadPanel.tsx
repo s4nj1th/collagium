@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { usePlacementStore } from "@/app/ui/canvas/usePlacementStore";
+import { uploadImageAction } from "@/app/lib/actions";
 
 export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
   const placement = usePlacementStore();
@@ -49,9 +50,9 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
       fd.set("scale", String(placement.scale));
       fd.set("z_index", String(placement.z_index));
 
-      const res = await fetch("/api/images", { method: "POST", body: fd });
-      const json = (await res.json()) as { error?: string };
-      if (!res.ok) throw new Error(json.error || "Submit failed");
+      // Use Server Action instead of API route
+      await uploadImageAction(fd);
+      
       setOk("Submitted for approval.");
       placement.clear();
       onSubmitted();

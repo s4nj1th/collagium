@@ -135,6 +135,8 @@ export function CollageCanvas({ images }: { images: CollageImage[] }) {
               image={el}
               x={img.x}
               y={img.y}
+              offsetX={el.width / 2}
+              offsetY={el.height / 2}
               rotation={img.rotation}
               scaleX={img.scale}
               scaleY={img.scale}
@@ -148,15 +150,14 @@ export function CollageCanvas({ images }: { images: CollageImage[] }) {
             image={previewImg}
             x={placement.x}
             y={placement.y}
+            offsetX={previewImg.width / 2}
+            offsetY={previewImg.height / 2}
             rotation={placement.rotation}
             scaleX={placement.scale}
             scaleY={placement.scale}
             draggable={!placement.submitting}
             opacity={0.88}
             onDragMove={(e) => placement.setTransform({ x: e.target.x(), y: e.target.y() })}
-            onTransformEnd={() => {
-              // transformer is handled in PlacementOverlay
-            }}
           />
         ) : null}
       </Layer>

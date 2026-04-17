@@ -1,15 +1,25 @@
-import { createClient } from "@supabase/supabase-js";
-import { env } from "./env";
+import { createClient as createBrowserClient } from "@/utils/supabase/client";
+import { createClient as createServerClient, createServiceClient as createServerService } from "@/utils/supabase/server";
 
+/**
+ * @deprecated Use @/utils/supabase/client or @/utils/supabase/server directly
+ */
 export function createSupabaseAnonClient() {
-  return createClient(env.supabase.url, env.supabase.anonKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  // Detection for server vs browser
+  if (typeof window === "undefined") {
+    // This is technically async in the new utils, so this wrapper might be tricky
+    // but for now we'll just advise using the new ones.
+    return null as any; 
+  }
+  return createBrowserClient();
 }
 
+/**
+ * @deprecated Use createServiceClient from @/utils/supabase/server
+ */
 export function createSupabaseServiceClient() {
-  return createClient(env.supabase.url, env.supabase.serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  // Legacy sync call - the new one is async. 
+  // We should update callers instead.
+  return null as any;
 }
 

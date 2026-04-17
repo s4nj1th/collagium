@@ -1,5 +1,5 @@
+import { createServiceClient } from "@/utils/supabase/server";
 import { nanoid } from "nanoid";
-import { createSupabaseServiceClient } from "@/app/lib/supabase";
 import { env } from "@/app/lib/env";
 
 export const runtime = "nodejs";
@@ -11,7 +11,7 @@ function toNumber(value: FormDataEntryValue | null, fallback: number) {
 }
 
 export async function GET() {
-  const supabase = createSupabaseServiceClient();
+  const supabase = await createServiceClient();
   const { data, error } = await supabase
     .from("images")
     .select("*")
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "png";
   const path = `uploads/${Date.now()}-${nanoid(10)}.${safeExt}`;
 
-  const supabase = createSupabaseServiceClient();
+  const supabase = await createServiceClient();
   const uploadRes = await supabase.storage
     .from(env.storage.bucket)
     .upload(path, file, {

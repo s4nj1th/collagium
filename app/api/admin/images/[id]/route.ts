@@ -1,6 +1,6 @@
 import { assertAdmin } from "@/app/lib/admin-auth";
 import { env } from "@/app/lib/env";
-import { createSupabaseServiceClient } from "@/app/lib/supabase";
+import { createServiceClient } from "@/utils/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -45,7 +45,7 @@ export async function PATCH(request: Request, ctx: RouteContext<"/api/admin/imag
     return Response.json({ error: "No fields to update" }, { status: 400 });
   }
 
-  const supabase = createSupabaseServiceClient();
+  const supabase = await createServiceClient();
   const { data, error } = await supabase
     .from("images")
     .update(patch)
@@ -62,7 +62,7 @@ export async function DELETE(_request: Request, ctx: RouteContext<"/api/admin/im
   if (unauth) return unauth;
 
   const { id } = await ctx.params;
-  const supabase = createSupabaseServiceClient();
+  const supabase = await createServiceClient();
 
   const { data: row, error: fetchError } = await supabase
     .from("images")

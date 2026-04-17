@@ -36,8 +36,8 @@ export const usePlacementStore = create<PlacementState>((set, get) => ({
     set({
       file,
       previewUrl: url,
-      x: 0,
-      y: 0,
+      x: 400,
+      y: 300,
       rotation: 0,
       scale: 1,
       z_index: 0,

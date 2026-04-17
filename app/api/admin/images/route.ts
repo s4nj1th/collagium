@@ -1,5 +1,5 @@
 import { assertAdmin } from "@/app/lib/admin-auth";
-import { createSupabaseServiceClient } from "@/app/lib/supabase";
+import { createServiceClient } from "@/utils/supabase/server";
 
 export const runtime = "nodejs";
 
@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const status = url.searchParams.get("status") || "pending";
 
-  const supabase = createSupabaseServiceClient();
+  const supabase = await createServiceClient();
   const { data, error } = await supabase
     .from("images")
     .select("*")
