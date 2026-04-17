@@ -77,7 +77,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
   return (
     <div className="flex flex-col gap-4">
       {/* Tab Switcher */}
-      <div className="flex gap-1 rounded-xl bg-black/20 p-1">
+      <div className="flex gap-1 rounded-xl bg-black/10 dark:bg-black/40 p-1">
         {(["image", "text"] as const).map((type) => (
           <button
             key={type}
@@ -85,8 +85,8 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
             className={[
               "flex-1 rounded-lg py-1.5 text-xs font-semibold capitalize transition-all",
               placement.element_type === type
-                ? "bg-white/15 text-white shadow-sm"
-                : "text-white/40 hover:text-white/60",
+                ? "bg-bg-app text-text-main shadow-sm"
+                : "text-text-main/40 hover:text-text-main/60",
             ].join(" ")}
           >
             {type === "image" ? "Photo" : type}
@@ -101,20 +101,20 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
             {...getRootProps()}
             className={[
               "flex h-full cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-4 text-sm transition-colors",
-              "border-white/10 bg-white/5 hover:bg-white/10",
-              isDragActive ? "border-white/40 bg-white/10" : "",
+              "border-border-glass bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10",
+              isDragActive ? "border-text-main/40 bg-black/10 dark:bg-white/10" : "",
             ].join(" ")}
           >
             <input {...getInputProps()} />
             <div className="min-w-0">
-              <div className="truncate font-medium text-white/90">
+              <div className="truncate font-medium text-text-main/90">
                 {placement.file ? placement.file.name : "Choose an image..."}
               </div>
-              <div className="text-[10px] text-white/40">
+              <div className="text-[10px] text-text-main/40">
                 PNG, JPG, or WEBP (Max 10MB)
               </div>
             </div>
-            <div className="shrink-0 rounded-lg bg-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white/60">
+            <div className="shrink-0 rounded-lg bg-black/10 dark:bg-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text-main/60">
               {placement.file ? "Change" : "Browse"}
             </div>
           </div>
@@ -127,11 +127,11 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
                 value={placement.text_content}
                 onChange={(e) => placement.setTransform({ text_content: e.target.value.slice(0, 100) })}
                 placeholder="Write a caption..."
-                className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-lg text-white outline-none focus:border-white/20"
+                className="w-full rounded-xl border border-border-glass bg-black/5 dark:bg-white/5 p-3 text-lg text-text-main outline-none focus:border-text-main/20"
                 style={{ fontFamily: "var(--font-caveat)" }}
                 rows={2}
               />
-              <div className="absolute bottom-2 right-3 text-[10px] text-white/30">
+              <div className="absolute bottom-2 right-3 text-[10px] text-text-main/30">
                 {placement.text_content.length}/100
               </div>
             </div>
@@ -144,7 +144,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
                     content: placement.text_content
                   }));
                 }}
-                className="flex cursor-grab items-center justify-center gap-2 rounded-xl bg-white/10 py-2 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/20 active:cursor-grabbing"
+                className="flex cursor-grab items-center justify-center gap-2 rounded-xl bg-black/10 dark:bg-white/10 py-2 text-xs font-bold uppercase tracking-wider text-text-main hover:bg-black/20 dark:hover:bg-white/20 active:cursor-grabbing"
               >
                 <span>⠿</span> Drag to Canvas
               </div>
@@ -156,7 +156,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
       {/* Frame Selector (only for images) */}
       {placement.element_type === "image" && (
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">Frame Style</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider opacity-40">Frame Style</span>
           <div className="flex gap-2">
             {frames.map((f) => (
               <button
@@ -165,8 +165,8 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
                 className={[
                   "shrink-0 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all",
                   placement.frame === f.id
-                    ? "bg-white text-black"
-                    : "bg-white/5 text-white/50 hover:bg-white/10",
+                    ? "bg-text-main text-bg-app"
+                    : "bg-black/5 dark:bg-white/5 text-text-main/50 hover:bg-black/10 dark:hover:bg-white/10",
                 ].join(" ")}
               >
                 {f.name}
@@ -208,7 +208,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
 
         <div className="flex gap-2">
           <button
-            className="h-10 flex-1 rounded-xl bg-white/10 px-3 text-sm font-semibold text-white hover:bg-white/15 disabled:opacity-50"
+            className="h-10 flex-1 rounded-xl bg-black/5 dark:bg-white/5 px-3 text-sm font-semibold text-text-main/70 hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-50"
             onClick={() => placement.clear()}
             disabled={placement.submitting}
             type="button"
@@ -216,7 +216,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
             Clear
           </button>
           <button
-            className="h-10 flex-[2] rounded-xl bg-white px-3 text-sm font-bold text-black hover:bg-zinc-200 disabled:opacity-50"
+            className="h-10 flex-[2] rounded-xl bg-text-main px-3 text-sm font-bold text-bg-app hover:opacity-90 disabled:opacity-50"
             onClick={submit}
             disabled={placement.submitting}
             type="button"
@@ -227,7 +227,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
       </div>
 
       {error && <div className="text-xs font-medium text-red-400">{error}</div>}
-      {ok && <div className="text-xs font-medium text-emerald-400">{ok}</div>}
+      {ok && <div className="text-xs font-medium text-emerald-500">{ok}</div>}
     </div>
   );
 }
@@ -235,14 +235,13 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
 function ControlSlider({ label, ...props }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">{label}</span>
+      <span className="text-[10px] font-bold uppercase tracking-wider opacity-40">{label}</span>
       <input
         type="range"
         {...props}
         onChange={(e) => props.onChange?.(Number(e.target.value) as any)}
-        className="h-1.5 w-full appearance-none rounded-lg bg-white/10 accent-white outline-none cursor-pointer"
+        className="h-1.5 w-full appearance-none rounded-lg bg-black/10 dark:bg-white/10 accent-text-main outline-none cursor-pointer"
       />
     </label>
   );
 }
-

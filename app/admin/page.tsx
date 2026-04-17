@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { deleteImageAction, updateImageAction } from "@/app/lib/actions";
 import type { CollageImage, ImageStatus } from "@/app/lib/types";
+import { useThemeStore } from "@/app/lib/useThemeStore";
 
 type AdminImage = CollageImage;
 
@@ -37,6 +38,7 @@ export default function AdminPage() {
   const [images, setImages] = useState<AdminImage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { theme, toggleTheme } = useThemeStore();
 
   const canQuery = password.trim().length > 0;
 
@@ -106,33 +108,33 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-full bg-zinc-50 text-zinc-950 dark:bg-black dark:text-zinc-50">
+    <div className="min-h-screen bg-bg-app text-text-main transition-colors duration-300">
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+            <div className="text-sm font-semibold opacity-50">
               Collagium
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">Admin</h1>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="mt-1 text-sm opacity-60">
               Moderate submissions and manage the approved canvas.
             </p>
           </div>
-          <a className="text-sm text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-white" href="/">
+          <a className="text-sm opacity-60 hover:opacity-100 hover:underline transition-all" href="/">
             Back to canvas
           </a>
         </div>
 
-        <div className="rounded-2xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+        <div className="rounded-2xl border border-border-glass bg-bg-glass p-4 shadow-sm backdrop-blur-md">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <label className="flex flex-1 flex-col gap-1 text-sm">
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">Admin password</span>
+              <span className="text-xs opacity-50">Admin password</span>
               <input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="COLLAGIUM_ADMIN_PASSWORD"
                 type="password"
-                className="h-10 rounded-xl border border-black/10 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-black/10 dark:border-white/10 dark:bg-black/40 dark:focus:ring-white/15"
+                className="h-10 rounded-xl border border-border-glass bg-black/5 dark:bg-white/5 px-3 text-sm outline-none focus:ring-2 focus:ring-black/10 dark:focus:ring-white/10"
               />
             </label>
 
@@ -140,14 +142,25 @@ export default function AdminPage() {
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value as ImageStatus)}
-                className="h-10 rounded-xl border border-black/10 bg-white px-3 text-sm dark:border-white/10 dark:bg-black/40"
+                className="h-10 rounded-xl border border-border-glass bg-black/5 dark:bg-white/5 px-3 text-sm outline-none"
               >
                 <option value="pending">Pending</option>
                 <option value="approved">Approved</option>
                 <option value="rejected">Rejected</option>
               </select>
               <button
-                className="h-10 rounded-xl bg-black px-4 text-sm font-semibold text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+                onClick={toggleTheme}
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-black/5 dark:bg-white/5 text-text-main/70 transition-colors hover:bg-black/10 dark:hover:bg-white/10 hover:text-text-main"
+                title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+              >
+                {theme === "dark" ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M22 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                )}
+              </button>
+              <button
+                className="h-10 rounded-xl bg-text-main px-4 text-sm font-bold text-bg-app hover:opacity-90 disabled:opacity-50"
                 onClick={() => void load()}
                 disabled={!canQuery || busy}
                 type="button"
@@ -157,7 +170,7 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <div className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="mt-3 text-xs opacity-50">
             Loaded: {images.length} (pending {counts.pending}, approved {counts.approved}, rejected{" "}
             {counts.rejected})
           </div>
@@ -168,23 +181,23 @@ export default function AdminPage() {
           {images.map((img) => (
             <div
               key={img.id}
-              className="rounded-2xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/5"
+              className="rounded-2xl border border-border-glass bg-bg-glass p-4 transition-all hover:border-text-main/20"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold">{img.id}</div>
-                  <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  <div className="truncate text-sm font-semibold opacity-90">{img.id}</div>
+                  <div className="mt-1 text-xs opacity-50">
                     {new Date(img.created_at).toLocaleString()}
                   </div>
                 </div>
-                <div className="shrink-0 rounded-lg px-2 py-1 text-xs font-medium text-white/90 dark:text-black/80"
+                <div className="shrink-0 rounded-lg px-2 py-1 text-xs font-bold uppercase tracking-wider text-white/90 dark:text-black/80"
                   style={{
                     background:
                       img.status === "approved"
-                        ? "rgba(16,185,129,0.25)"
+                        ? "rgba(16,185,129,0.8)"
                         : img.status === "rejected"
-                          ? "rgba(239,68,68,0.25)"
-                          : "rgba(59,130,246,0.25)",
+                          ? "rgba(239,68,68,0.8)"
+                          : "rgba(59,130,246,0.8)",
                   }}
                 >
                   {img.status}
@@ -194,7 +207,7 @@ export default function AdminPage() {
               <div className="mt-3 aspect-video w-full overflow-hidden rounded-xl bg-black/5 dark:bg-black/30 flex items-center justify-center p-4">
                 {img.element_type === "text" ? (
                   <div 
-                    className="text-center text-xl text-zinc-800 dark:text-zinc-100"
+                    className="text-center text-xl"
                     style={{ fontFamily: "var(--font-caveat)" }}
                   >
                     {img.text_content}
@@ -211,34 +224,34 @@ export default function AdminPage() {
               </div>
 
               <div className="mt-2 flex items-center gap-2">
-                <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                <span className="rounded bg-black/5 dark:bg-white/5 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider opacity-60">
                   {img.element_type}
                 </span>
               </div>
 
-              <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-zinc-600 dark:text-zinc-300">
+              <div className="mt-3 grid grid-cols-2 gap-3 text-xs opacity-70">
                 <div>
-                  <div className="text-[11px] text-zinc-500 dark:text-zinc-400">x / y</div>
+                  <div className="text-[11px] opacity-60">x / y</div>
                   <div className="font-mono">
                     {Math.round(img.x)} / {Math.round(img.y)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[11px] text-zinc-500 dark:text-zinc-400">rot / scale</div>
+                  <div className="text-[11px] opacity-60">rot / scale</div>
                   <div className="font-mono">
                     {Math.round(img.rotation)}° / {img.scale.toFixed(2)}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[11px] text-zinc-500 dark:text-zinc-400">z</div>
+                  <div className="text-[11px] opacity-60">z</div>
                   <div className="font-mono">{img.z_index}</div>
                 </div>
                 <div>
-                  <div className="text-[11px] text-zinc-500 dark:text-zinc-400">locked</div>
+                  <div className="text-[11px] opacity-60">locked</div>
                   <div className="font-mono">{img.locked ? "true" : "false"}</div>
                 </div>
                 <div>
-                  <div className="text-[11px] text-zinc-500 dark:text-zinc-400">frame</div>
+                  <div className="text-[11px] opacity-60">frame</div>
                   <div className="font-mono capitalize">{img.frame || "none"}</div>
                 </div>
               </div>
@@ -246,7 +259,7 @@ export default function AdminPage() {
               <div className="mt-4 flex flex-wrap gap-2">
                 {img.status !== "approved" ? (
                   <button
-                    className="h-9 rounded-xl bg-emerald-500/15 px-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-500/20 disabled:opacity-50 dark:text-emerald-200"
+                    className="h-9 rounded-xl bg-emerald-500/10 px-3 text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-50"
                     onClick={() => void patch(img.id, { status: "approved" })}
                     disabled={!canQuery || busy}
                     type="button"
@@ -256,7 +269,7 @@ export default function AdminPage() {
                 ) : null}
                 {img.status !== "rejected" ? (
                   <button
-                    className="h-9 rounded-xl bg-red-500/15 px-3 text-sm font-semibold text-red-700 hover:bg-red-500/20 disabled:opacity-50 dark:text-red-200"
+                    className="h-9 rounded-xl bg-red-500/10 px-3 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/20 disabled:opacity-50"
                     onClick={() => void patch(img.id, { status: "rejected" })}
                     disabled={!canQuery || busy}
                     type="button"
@@ -265,7 +278,7 @@ export default function AdminPage() {
                   </button>
                 ) : null}
                 <button
-                  className="h-9 rounded-xl bg-black/5 px-3 text-sm font-semibold text-zinc-800 hover:bg-black/10 disabled:opacity-50 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                  className="h-9 rounded-xl bg-black/5 dark:bg-white/5 px-3 text-sm font-semibold opacity-70 hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-50"
                   onClick={() => void patch(img.id, { locked: !img.locked })}
                   disabled={!canQuery || busy}
                   type="button"
@@ -273,7 +286,7 @@ export default function AdminPage() {
                   {img.locked ? "Unlock" : "Lock"}
                 </button>
                 <button
-                  className="h-9 rounded-xl bg-black/5 px-3 text-sm font-semibold text-zinc-800 hover:bg-black/10 disabled:opacity-50 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                  className="h-9 rounded-xl bg-black/5 dark:bg-white/5 px-3 text-sm font-semibold opacity-70 hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-50"
                   onClick={() => void bringToFront(img.id)}
                   disabled={!canQuery || busy}
                   type="button"
@@ -281,7 +294,7 @@ export default function AdminPage() {
                   Bring Front
                 </button>
                 <button
-                  className="h-9 rounded-xl bg-black/5 px-3 text-sm font-semibold text-zinc-800 hover:bg-black/10 disabled:opacity-50 dark:bg-white/10 dark:text-white dark:hover:bg-white/15"
+                  className="h-9 rounded-xl bg-black/5 dark:bg-white/5 px-3 text-sm font-semibold opacity-70 hover:opacity-100 hover:bg-black/10 dark:hover:bg-white/10 disabled:opacity-50"
                   onClick={() => void sendToBack(img.id)}
                   disabled={!canQuery || busy}
                   type="button"
@@ -302,7 +315,7 @@ export default function AdminPage() {
         </div>
 
         {images.length === 0 ? (
-          <div className="rounded-2xl border border-black/10 bg-white p-6 text-sm text-zinc-600 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300">
+          <div className="rounded-2xl border border-border-glass bg-bg-glass p-6 text-sm opacity-60">
             No items. Enter password and refresh.
           </div>
         ) : null}

@@ -7,11 +7,11 @@ export function Lightbox() {
 
   return (
     <div 
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl animate-in fade-in duration-300"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-bg-app/80 backdrop-blur-xl animate-in fade-in duration-300"
       onClick={() => setViewingElement(null)}
     >
       <button 
-        className="absolute right-6 top-6 rounded-full bg-white/10 p-2 text-white/50 hover:bg-white/20 hover:text-white transition-all"
+        className="absolute right-6 top-6 rounded-full bg-black/5 dark:bg-white/5 p-2 text-text-main/40 hover:bg-black/10 dark:hover:bg-white/10 hover:text-text-main transition-all"
         onClick={(e) => {
           e.stopPropagation();
           setViewingElement(null);
@@ -21,13 +21,13 @@ export function Lightbox() {
       </button>
 
       <div 
-        className="relative max-h-[85vh] max-w-[90vw] overflow-hidden rounded-2xl shadow-2xl shadow-black/50"
+        className="relative max-h-[85vh] max-w-[90vw] overflow-hidden rounded-2xl shadow-2xl shadow-black/20"
         onClick={(e) => e.stopPropagation()}
       >
         {viewingElement.element_type === "text" ? (
-          <div className="flex min-h-[300px] min-w-[300px] items-center justify-center bg-white/5 p-12 text-center">
+          <div className="flex min-h-[300px] min-w-[300px] items-center justify-center bg-black/5 dark:bg-white/5 p-12 text-center">
             <h2 
-              className="text-4xl text-white sm:text-6xl"
+              className="text-4xl text-text-main sm:text-6xl"
               style={{ fontFamily: "var(--font-caveat)" }}
             >
               {viewingElement.text_content}
@@ -41,8 +41,8 @@ export function Lightbox() {
           />
         )}
         
-        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-12">
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/40">
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-bg-app/90 to-transparent p-6 pt-12">
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-40">
             {new Date(viewingElement.created_at).toLocaleDateString()} • {viewingElement.element_type}
           </div>
         </div>

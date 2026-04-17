@@ -168,6 +168,7 @@ function FramedImage({
 }
 import { useCanvasStore } from "@/app/ui/canvas/useCanvasStore";
 import { usePlacementStore } from "@/app/ui/canvas/usePlacementStore";
+import { useThemeStore } from "@/app/lib/useThemeStore";
 
 function useWindowSize() {
   const [size, setSize] = useState({ w: 800, h: 600 });
@@ -201,6 +202,7 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
     const { w, h } = useWindowSize();
     const { stageScale, stageX, stageY, setViewport, setViewingElement } = useCanvasStore();
     const placement = usePlacementStore();
+    const theme = useThemeStore((s) => s.theme);
 
     useImperativeHandle(ref, () => ({
       download: () => {
@@ -336,12 +338,19 @@ export const CollageCanvas = forwardRef<CollageCanvasHandle, { images: CollageIm
         className="touch-none select-none"
       >
         <Layer>
-          <Rect x={-200000} y={-200000} width={400000} height={400000} fill="#000000" opacity={0.0} />
+          {/* background */}
+          <Rect 
+            x={-200000} y={-200000} width={400000} height={400000} 
+            fill={theme === "dark" ? "#000000" : "#f4f4f5"} 
+          />
         </Layer>
 
         <Layer>
           {/* faint grid */}
-          <Rect x={-200000} y={-200000} width={400000} height={400000} fill="#0a0a0a" opacity={0} />
+          <Rect 
+            x={-200000} y={-200000} width={400000} height={400000} 
+            fill={theme === "dark" ? "#0a0a0a" : "#e4e4e7"} 
+          />
         </Layer>
 
         <Layer>
