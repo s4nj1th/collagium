@@ -1,80 +1,70 @@
-# Installation
+# Setup Guide
 
-## Local setup
+Welcome to the installation guide for the Collagium Creative Workstation. Follow these steps to get your local environment ready for creation.
 
-### Requirements
+## Prerequisites
 
-- Node.js 20 or newer
-- npm
-- A Supabase project
+Before you begin, ensure you have the following installed on your machine:
 
-### Environment file
+- **Node.js** (v18.0 or higher)
+- **npm** (v9.0 or higher)
+- A **Supabase** account (Free tier works perfectly)
 
-Copy the example file to `.env.local`:
+## Step 1: Clone the Repository
+
+Open your terminal and pull the latest code:
+
+```bash
+git clone https://github.com/s4nj1th/collagium.git
+cd collagium
+```
+
+## Step 2: Install Dependencies
+
+We use a streamlined set of high-performance libraries (Konva, Zustand, Supabase):
+
+```bash
+npm install
+```
+
+## Step 3: Configure Environment
+
+Copy the example environment file and fill in your unique project keys:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Fill in these values in `.env.local`:
+Edit `.env.local` with your details:
 
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `COLLAGIUM_ADMIN_PASSWORD`
-- `COLLAGIUM_STORAGE_BUCKET` is optional and defaults to `collagium-images`
+- `NEXT_PUBLIC_SUPABASE_URL`: Found in Project Settings > API.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Found in Project Settings > API.
+- `SUPABASE_SERVICE_ROLE_KEY`: Required for admin operations (Keep this secret!).
+- `COLLAGIUM_ADMIN_PASSWORD`: A unique password for accessing `/admin`.
+- `COLLAGIUM_STORAGE_BUCKET`: Create a public bucket in Supabase Storage named `images`.
 
-### Supabase setup
+## Step 4: Prepare the Database
 
-1. Open the Supabase SQL editor.
-2. Run [supabase/schema.sql](supabase/schema.sql).
-3. Create a storage bucket that matches `COLLAGIUM_STORAGE_BUCKET`.
-4. Make sure files in that bucket can be read through public URLs.
+1. Go to the **SQL Editor** in your Supabase dashboard.
+2. Content from `supabase/schema.sql` (found in the root of this repo) and run it. This will create the `images` table and necessary security policies.
 
-### Install and run
+## Step 5: Launch the Station
+
+Now, ignite the local server:
 
 ```bash
-npm install
 npm run dev
 ```
 
-Open http://localhost:3000.
+Your workstation is now live at **localhost:3000**!
 
-## Local checks
+---
 
-Run these while the app is running:
+## Verification
 
-```bash
-curl -i http://localhost:3000/api/images
-curl -i "http://localhost:3000/api/admin/images?status=pending"
-curl -i "http://localhost:3000/api/admin/images?status=pending" \
-  -H "x-collagium-admin-password: YOUR_PASSWORD"
-```
+To ensure everything is working correctly:
 
-Before deploying, run:
-
-```bash
-npm run lint
-npm run build
-```
-
-## Railway deployment
-
-1. Push the repository to GitHub.
-2. Create a new Railway project from the GitHub repo.
-3. Add the same environment variables you use locally.
-4. Keep `SUPABASE_SERVICE_ROLE_KEY` private.
-5. Set a strong production value for `COLLAGIUM_ADMIN_PASSWORD`.
-6. Deploy the project.
-
-Railway should use these commands:
-
-- Build: `npm run build`
-- Start: `npm run start`
-
-After deployment, check the Railway URL with:
-
-```bash
-curl -i https://YOUR_RAILWAY_DOMAIN/api/images
-curl -i "https://YOUR_RAILWAY_DOMAIN/api/admin/images?status=pending"
-```
+1. Visit the home page and try selecting a small photo.
+2. Drag it around, rotate it, and click "Add to Board".
+3. Navigate to `/admin`, enter your password, and verify the pending submission appears.
+4. Approve the item and watch it appear on the main canvas in real-time.

@@ -1,10 +1,26 @@
 <div align="center">
-    <img src="" />
+    <img src="public/logo.png" width="128"/>
     <h1>Collagium</h1>
+    <p><i>A shared digital tapestry for collective inspiration.</i></p>
 </div>
 
-Collagium is a shared canvas app for uploading images, placing them on a board, and moderating submissions.
+Collagium is a communal space designed for the quiet, slow-motion art of collective creation. Inspired by the spirit of shared canvases like Reddit's r/place, it offers a single, infinite acreage where anyone can contribute a piece of their world to a larger, ever-evolving picture.
 
-It has two main parts: a public canvas for visitors and an admin view for reviewing uploads.
+### The Inspiration
 
-For setup and deployment instructions, see [INSTALLATION.md](INSTALLATION.md).
+The project was born from a fascination with what happens when people are given a common ground to build upon. Like the digital social experiments that came before it, Collagium is based on the idea that individual expression, when placed side-by-side with others, forms a narrative that no single person could have conceived alone. It is about the friction and harmony that occurs when our personal inspirations overlap.
+
+### Ways to Interact
+
+There is no single "right" way to use the canvas. It is designed to be shaped by the community in whatever way feels natural:
+
+- **Collective Scrapbooking**: A place to leave fragments of memories—a photo from a morning walk, a line from a favorite book, or a snapshot of a moment that mattered.
+- **Visual Dialogue**: You might find someone has left a striking image, and you feel moved to place a handwritten caption next to it, starting a silent, visual conversation across the board.
+- **Curated Curation**: Use the board to arrange and layer elements into a story. You can bring your own pieces to the front or send them to the back to interact with what is already there.
+- **Community Wall**: Similar to a physical message board in a shared studio, it serves as a persistent "I was here" space where your presence is marked by what you choose to leave behind.
+
+Unlike typical social platforms that focus on the "now" and the "new," Collagium focuses on the "together" and the "permanent." It is a slow-burn social experiment in digital craft.
+
+For details on how to set up the project locally, please refer to the [INSTALLATION.md](INSTALLATION.md).
+
+_MIT License © 2026_
