@@ -42,8 +42,8 @@ function FramedImage({
   onClick?: () => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  const width = element_type === "text" ? 200 : (image?.width || 100);
-  const height = element_type === "text" ? 60 : (image?.height || 100);
+  const width = element_type === "text" ? 800 : (image?.width || 100);
+  const height = element_type === "text" ? 240 : (image?.height || 100);
 
   const renderFrame = () => {
     if (element_type === "text") return null;
@@ -151,7 +151,7 @@ function FramedImage({
           y={-height / 2}
           width={width}
           fontSize={48}
-          fontFamily="Caveat"
+          fontFamily="Inter, sans-serif"
           fill="white"
           align="center"
           shadowBlur={5}

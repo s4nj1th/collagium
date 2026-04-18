@@ -178,14 +178,14 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
             <div className="relative">
               <textarea
                 value={placement.text_content}
-                onChange={(e) => placement.setTransform({ text_content: e.target.value.slice(0, 100) })}
+                onChange={(e) => placement.setTransform({ text_content: e.target.value.slice(0, 120) })}
                 placeholder="Write a caption..."
                 className="w-full rounded-xl border border-border-glass bg-black/5 dark:bg-white/5 p-3 text-lg text-text-main outline-none focus:border-text-main/20"
-                style={{ fontFamily: "'Caveat'" }}
+                style={{ fontFamily: 'var(--font-inter), sans-serif' }}
                 rows={2}
               />
               <div className="absolute bottom-2 right-3 text-[10px] text-text-main/30">
-                {placement.text_content.length}/100
+                {placement.text_content.length}/120
               </div>
             </div>
             {placement.text_content.trim() && (
