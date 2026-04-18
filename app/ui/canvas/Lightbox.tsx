@@ -37,7 +37,7 @@ export function Lightbox() {
           <img 
             src={viewingElement.url} 
             alt="Full view" 
-            className="h-full w-full object-contain"
+            className="max-w-[90vw] max-h-[90vh]"
           />
         )}
         
