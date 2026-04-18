@@ -13,7 +13,7 @@ export function CollageCanvasPage() {
   const canvasRef = useRef<CollageCanvasHandle>(null);
   const [approved, setApproved] = useState<CollageImage[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const { theme, toggleTheme } = useThemeStore();
 
   // Initial fetch
