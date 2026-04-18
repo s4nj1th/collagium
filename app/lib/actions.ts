@@ -13,6 +13,7 @@ export async function uploadImageAction(formData: FormData) {
   const element_type = (formData.get("element_type") || "image") as ElementType;
   const text_content = formData.get("text_content") as string;
   const file = formData.get("file") as File | null;
+  const external_url = formData.get("external_url") as string | null;
   
   const x = Number(formData.get("x") || 0);
   const y = Number(formData.get("y") || 0);
@@ -22,9 +23,9 @@ export async function uploadImageAction(formData: FormData) {
   const frame = String(formData.get("frame") || "none");
 
   const supabase = await createServiceClient();
-  let url: string | null = null;
+  let url: string | null = external_url || null;
 
-  if (file && file.size > 0) {
+  if (file && file.size > 0 && file.name) {
     const ext = (file.name.split(".").pop() || "png").toLowerCase();
     const safeExt = /^[a-z0-9]+$/.test(ext) ? ext : "png";
     const path = `uploads/${Date.now()}-${nanoid(10)}.${safeExt}`;

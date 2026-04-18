@@ -6,6 +6,7 @@ import type { ElementType, ImageFrame } from "@/app/lib/types";
 type PlacementState = {
   file: File | null;
   previewUrl: string | null;
+  externalUrl: string | null;
   element_type: ElementType;
   text_content: string;
   x: number;
@@ -17,13 +18,14 @@ type PlacementState = {
   submitting: boolean;
   setFile: (file: File | null) => void;
   setElement: (type: ElementType, content?: string, url?: string, x?: number, y?: number) => void;
-  setTransform: (t: Partial<Pick<PlacementState, "x" | "y" | "rotation" | "scale" | "z_index" | "frame" | "text_content" | "element_type">>) => void;
+  setTransform: (t: Partial<Pick<PlacementState, "x" | "y" | "rotation" | "scale" | "z_index" | "frame" | "text_content" | "element_type" | "previewUrl" | "externalUrl">>) => void;
   clear: () => void;
 };
 
 export const usePlacementStore = create<PlacementState>((set, get) => ({
   file: null,
   previewUrl: null,
+  externalUrl: null,
   element_type: "image",
   text_content: "",
   x: 400,
@@ -35,15 +37,16 @@ export const usePlacementStore = create<PlacementState>((set, get) => ({
   submitting: false,
   setFile: (file) => {
     const prev = get().previewUrl;
-    if (prev) URL.revokeObjectURL(prev);
+    if (prev && !get().externalUrl) URL.revokeObjectURL(prev);
     if (!file) {
-      set({ file: null, previewUrl: null, element_type: "image" });
+      set({ file: null, previewUrl: null, externalUrl: null, element_type: "image" });
       return;
     }
     const url = URL.createObjectURL(file);
     set({
       file,
       previewUrl: url,
+      externalUrl: null,
       element_type: "image",
       x: 400,
       y: 300,
@@ -62,6 +65,7 @@ export const usePlacementStore = create<PlacementState>((set, get) => ({
         element_type: type,
         text_content: content || "",
         previewUrl: url || null,
+        externalUrl: null,
         file: null,
         x: x ?? 400,
         y: y ?? 300,
@@ -74,7 +78,7 @@ export const usePlacementStore = create<PlacementState>((set, get) => ({
   setTransform: (t) => set(t),
   clear: () => {
     const prev = get().previewUrl;
-    if (prev) URL.revokeObjectURL(prev);
-    set({ file: null, previewUrl: null, element_type: "image", text_content: "", submitting: false });
+    if (prev && !get().externalUrl) URL.revokeObjectURL(prev);
+    set({ file: null, previewUrl: null, externalUrl: null, element_type: "image", text_content: "", submitting: false });
   },
 }));

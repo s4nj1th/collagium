@@ -11,6 +11,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
   const placement = usePlacementStore();
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
+  const [uploadMode, setUploadMode] = useState<"file" | "url">("file");
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -37,13 +38,14 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
     setError(null);
     setOk(null);
     
-    const hasContent = placement.file || placement.text_content.trim();
+    const hasContent = placement.file || placement.externalUrl || placement.text_content.trim();
     if (!hasContent) return;
 
     usePlacementStore.setState({ submitting: true });
     try {
       const fd = new FormData();
       if (placement.file) fd.set("file", placement.file);
+      if (placement.externalUrl) fd.set("external_url", placement.externalUrl);
       fd.set("element_type", placement.element_type);
       fd.set("text_content", placement.text_content);
       
@@ -97,30 +99,67 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
       {/* Input Area */}
       <div className="min-h-[80px]">
         {placement.element_type === "image" && (
-          <div
-            {...getRootProps()}
-            className={[
-              "flex h-full cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-4 text-sm transition-colors",
-              "border-border-glass bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10",
-              isDragActive ? "border-text-main/40 bg-black/10 dark:bg-white/10" : "",
-            ].join(" ")}
-          >
-            <input {...getInputProps()} />
-            <div className="min-w-0">
-              <div className="truncate font-medium text-text-main/90">
-                {placement.file ? placement.file.name : "Choose an image..."}
-              </div>
-              <div className="text-[10px] text-text-main/40">
-                PNG, JPG, or WEBP (Max 10MB)
-              </div>
+          <div className="space-y-3">
+            <div className="flex gap-1 rounded-lg bg-black/5 dark:bg-white/5 p-1 mb-2">
+              <button
+                key="file"
+                onClick={() => setUploadMode("file")}
+                className={`flex-1 rounded py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  uploadMode === "file" ? "bg-bg-app text-text-main shadow-sm" : "text-text-main/40 hover:text-text-main/60"
+                }`}
+              >
+                File
+              </button>
+              <button
+                key="url"
+                onClick={() => setUploadMode("url")}
+                className={`flex-1 rounded py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  uploadMode === "url" ? "bg-bg-app text-text-main shadow-sm" : "text-text-main/40 hover:text-text-main/60"
+                }`}
+              >
+                Link URL
+              </button>
             </div>
-            <div className="shrink-0 rounded-lg bg-black/10 dark:bg-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text-main/60">
-              {placement.file ? "Change" : "Browse"}
-            </div>
+
+            {uploadMode === "file" ? (
+              <div
+                {...getRootProps()}
+                className={[
+                  "flex h-full cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-4 text-sm transition-colors",
+                  "border-border-glass bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10",
+                  isDragActive ? "border-text-main/40 bg-black/10 dark:bg-white/10" : "",
+                ].join(" ")}
+              >
+                <input {...getInputProps()} />
+                <div className="min-w-0">
+                  <div className="truncate font-medium text-text-main/90">
+                    {placement.file ? placement.file.name : "Choose an image..."}
+                  </div>
+                  <div className="text-[10px] text-text-main/40">
+                    PNG, JPG, or WEBP (Max 10MB)
+                  </div>
+                </div>
+                <div className="shrink-0 rounded-lg bg-black/10 dark:bg-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text-main/60">
+                  {placement.file ? "Change" : "Browse"}
+                </div>
+              </div>
+            ) : (
+              <input
+                type="url"
+                placeholder="https://example.com/image.png"
+                value={placement.externalUrl || ""}
+                onChange={(e) => {
+                  const url = e.target.value;
+                  if (placement.file) placement.setFile(null);
+                  placement.setTransform({ externalUrl: url || null, previewUrl: url || null });
+                }}
+                className="w-full rounded-xl border border-border-glass bg-black/5 dark:bg-white/5 p-3 text-sm text-text-main outline-none focus:border-text-main/20"
+              />
+            )}
           </div>
         )}
 
-        {placement.element_type === "image" && placement.file && (
+        {placement.element_type === "image" && (placement.file || placement.externalUrl) && (
           <div
             draggable
             onDragStart={(e) => {
