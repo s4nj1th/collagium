@@ -9,8 +9,11 @@ Collagium is a communal space designed for the quiet, slow-motion art of collect
 ### Screenshots
 
 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 1rem;" align="center">
-  <img src="screenshots/01.png" alt="Canvas" width="720"
-       style="border-radius: 6px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="screenshots/01-dark.png">
+    <img src="screenshots/01-light.png" alt="Canvas" width="720"
+         style="border-radius: 6px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);" />
+  </picture>
 </div>
 
 ### The Inspiration
