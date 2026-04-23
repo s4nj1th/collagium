@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { deleteImageAction, updateImageAction } from "@/app/lib/actions";
 import type { CollageImage, ImageStatus } from "@/app/lib/types";
 import { useThemeStore } from "@/app/lib/useThemeStore";
+import Link from "next/link";
 
 type AdminImage = CollageImage;
 
@@ -98,12 +99,14 @@ export default function AdminPage() {
   };
 
   const bringToFront = async (id: string) => {
-    const maxZ = images.length > 0 ? Math.max(...images.map((i) => i.z_index)) : 0;
+    const maxZ =
+      images.length > 0 ? Math.max(...images.map((i) => i.z_index)) : 0;
     await patch(id, { z_index: maxZ + 1 });
   };
 
   const sendToBack = async (id: string) => {
-    const minZ = images.length > 0 ? Math.min(...images.map((i) => i.z_index)) : 0;
+    const minZ =
+      images.length > 0 ? Math.min(...images.map((i) => i.z_index)) : 0;
     await patch(id, { z_index: minZ - 1 });
   };
 
@@ -112,17 +115,18 @@ export default function AdminPage() {
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 py-10">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-sm font-semibold opacity-50">
-              Collagium
-            </div>
+            <div className="text-sm font-semibold opacity-50">Collagium</div>
             <h1 className="text-2xl font-semibold tracking-tight">Admin</h1>
             <p className="mt-1 text-sm opacity-60">
               Moderate submissions and manage the approved canvas.
             </p>
           </div>
-          <a className="text-sm opacity-60 hover:opacity-100 hover:underline transition-all" href="/">
+          <Link
+            className="text-sm opacity-60 hover:opacity-100 hover:underline transition-all"
+            href="/"
+          >
             Back to canvas
-          </a>
+          </Link>
         </div>
 
         <div className="rounded-2xl border border-border-glass bg-bg-glass p-4 shadow-sm backdrop-blur-md">
@@ -154,9 +158,41 @@ export default function AdminPage() {
                 title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
               >
                 {theme === "dark" ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M22 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2" />
+                    <path d="M12 20v2" />
+                    <path d="m4.93 4.93 1.41 1.41" />
+                    <path d="m17.66 17.66 1.41 1.41" />
+                    <path d="M2 12h2" />
+                    <path d="M22 12h2" />
+                    <path d="m6.34 17.66-1.41 1.41" />
+                    <path d="m19.07 4.93-1.41 1.41" />
+                  </svg>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                  </svg>
                 )}
               </button>
               <button
@@ -171,10 +207,12 @@ export default function AdminPage() {
           </div>
 
           <div className="mt-3 text-xs opacity-50">
-            Loaded: {images.length} (pending {counts.pending}, approved {counts.approved}, rejected{" "}
-            {counts.rejected})
+            Loaded: {images.length} (pending {counts.pending}, approved{" "}
+            {counts.approved}, rejected {counts.rejected})
           </div>
-          {error ? <div className="mt-2 text-xs text-red-500">{error}</div> : null}
+          {error ? (
+            <div className="mt-2 text-xs text-red-500">{error}</div>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -185,12 +223,15 @@ export default function AdminPage() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold opacity-90">{img.id}</div>
+                  <div className="truncate text-sm font-semibold opacity-90">
+                    {img.id}
+                  </div>
                   <div className="mt-1 text-xs opacity-50">
                     {new Date(img.created_at).toLocaleString()}
                   </div>
                 </div>
-                <div className="shrink-0 rounded-lg px-2 py-1 text-xs font-bold uppercase tracking-wider text-white/90 dark:text-black/80"
+                <div
+                  className="shrink-0 rounded-lg px-2 py-1 text-xs font-bold uppercase tracking-wider text-white/90 dark:text-black/80"
                   style={{
                     background:
                       img.status === "approved"
@@ -206,7 +247,7 @@ export default function AdminPage() {
 
               <div className="mt-3 aspect-video w-full overflow-hidden rounded-xl bg-black/5 dark:bg-black/30 flex items-center justify-center p-4">
                 {img.element_type === "text" ? (
-                  <div 
+                  <div
                     className="text-center text-xl"
                     style={{ fontFamily: "var(--font-caveat)" }}
                   >
@@ -248,11 +289,15 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <div className="text-[11px] opacity-60">locked</div>
-                  <div className="font-mono">{img.locked ? "true" : "false"}</div>
+                  <div className="font-mono">
+                    {img.locked ? "true" : "false"}
+                  </div>
                 </div>
                 <div>
                   <div className="text-[11px] opacity-60">frame</div>
-                  <div className="font-mono capitalize">{img.frame || "none"}</div>
+                  <div className="font-mono capitalize">
+                    {img.frame || "none"}
+                  </div>
                 </div>
               </div>
 
@@ -323,4 +368,3 @@ export default function AdminPage() {
     </div>
   );
 }
-

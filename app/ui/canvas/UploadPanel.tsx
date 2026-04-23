@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { usePlacementStore } from "@/app/ui/canvas/usePlacementStore";
 import { uploadImageAction } from "@/app/lib/actions";
+import { ImageFrame } from "@/app/lib/types";
 
 // STICKERS REMOVED
 
@@ -37,8 +38,9 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
   const submit = async () => {
     setError(null);
     setOk(null);
-    
-    const hasContent = placement.file || placement.externalUrl || placement.text_content.trim();
+
+    const hasContent =
+      placement.file || placement.externalUrl || placement.text_content.trim();
     if (!hasContent) return;
 
     usePlacementStore.setState({ submitting: true });
@@ -48,7 +50,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
       if (placement.externalUrl) fd.set("external_url", placement.externalUrl);
       fd.set("element_type", placement.element_type);
       fd.set("text_content", placement.text_content);
-      
+
       fd.set("x", String(placement.x));
       fd.set("y", String(placement.y));
       fd.set("rotation", String(placement.rotation));
@@ -57,7 +59,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
       fd.set("frame", placement.frame);
 
       await uploadImageAction(fd);
-      
+
       setOk("Submitted for approval.");
       placement.clear();
       onSubmitted();
@@ -97,7 +99,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
       </div>
 
       {/* Input Area */}
-      <div className="min-h-[80px]">
+      <div className="min-h-20">
         {placement.element_type === "image" && (
           <div className="space-y-3">
             <div className="flex gap-1 rounded-lg bg-black/5 dark:bg-white/5 p-1 mb-2">
@@ -105,7 +107,9 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
                 key="file"
                 onClick={() => setUploadMode("file")}
                 className={`flex-1 rounded py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
-                  uploadMode === "file" ? "bg-bg-app text-text-main shadow-sm" : "text-text-main/40 hover:text-text-main/60"
+                  uploadMode === "file"
+                    ? "bg-bg-app text-text-main shadow-sm"
+                    : "text-text-main/40 hover:text-text-main/60"
                 }`}
               >
                 File
@@ -114,7 +118,9 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
                 key="url"
                 onClick={() => setUploadMode("url")}
                 className={`flex-1 rounded py-1 text-[10px] font-bold uppercase tracking-wider transition-all ${
-                  uploadMode === "url" ? "bg-bg-app text-text-main shadow-sm" : "text-text-main/40 hover:text-text-main/60"
+                  uploadMode === "url"
+                    ? "bg-bg-app text-text-main shadow-sm"
+                    : "text-text-main/40 hover:text-text-main/60"
                 }`}
               >
                 Link URL
@@ -127,13 +133,17 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
                 className={[
                   "flex h-full cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-4 text-sm transition-colors",
                   "border-border-glass bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10",
-                  isDragActive ? "border-text-main/40 bg-black/10 dark:bg-white/10" : "",
+                  isDragActive
+                    ? "border-text-main/40 bg-black/10 dark:bg-white/10"
+                    : "",
                 ].join(" ")}
               >
                 <input {...getInputProps()} />
                 <div className="min-w-0">
                   <div className="truncate font-medium text-text-main/90">
-                    {placement.file ? placement.file.name : "Choose an image..."}
+                    {placement.file
+                      ? placement.file.name
+                      : "Choose an image..."}
                   </div>
                   <div className="text-[10px] text-text-main/40">
                     PNG, JPG, or WEBP (Max 10MB)
@@ -151,7 +161,10 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
                 onChange={(e) => {
                   const url = e.target.value;
                   if (placement.file) placement.setFile(null);
-                  placement.setTransform({ externalUrl: url || null, previewUrl: url || null });
+                  placement.setTransform({
+                    externalUrl: url || null,
+                    previewUrl: url || null,
+                  });
                 }}
                 className="w-full rounded-xl border border-border-glass bg-black/5 dark:bg-white/5 p-3 text-sm text-text-main outline-none focus:border-text-main/20"
               />
@@ -159,29 +172,37 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
           </div>
         )}
 
-        {placement.element_type === "image" && (placement.file || placement.externalUrl) && (
-          <div
-            draggable
-            onDragStart={(e) => {
-              e.dataTransfer.setData("application/collagium", JSON.stringify({
-                type: "image_move"
-              }));
-            }}
-            className="mt-3 flex cursor-grab items-center justify-center gap-2 rounded-xl bg-black/10 dark:bg-white/10 py-2 text-xs font-bold uppercase tracking-wider text-text-main hover:bg-black/20 dark:hover:bg-white/20 active:cursor-grabbing"
-          >
-            <span>⠿</span> Drag to Canvas
-          </div>
-        )}
+        {placement.element_type === "image" &&
+          (placement.file || placement.externalUrl) && (
+            <div
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData(
+                  "application/collagium",
+                  JSON.stringify({
+                    type: "image_move",
+                  }),
+                );
+              }}
+              className="mt-3 flex cursor-grab items-center justify-center gap-2 rounded-xl bg-black/10 dark:bg-white/10 py-2 text-xs font-bold uppercase tracking-wider text-text-main hover:bg-black/20 dark:hover:bg-white/20 active:cursor-grabbing"
+            >
+              <span>⠿</span> Drag to Canvas
+            </div>
+          )}
 
         {placement.element_type === "text" && (
           <div className="space-y-3">
             <div className="relative">
               <textarea
                 value={placement.text_content}
-                onChange={(e) => placement.setTransform({ text_content: e.target.value.slice(0, 120) })}
+                onChange={(e) =>
+                  placement.setTransform({
+                    text_content: e.target.value.slice(0, 120),
+                  })
+                }
                 placeholder="Write a caption..."
                 className="w-full rounded-xl border border-border-glass bg-black/5 dark:bg-white/5 p-3 text-lg text-text-main outline-none focus:border-text-main/20"
-                style={{ fontFamily: 'var(--font-inter), sans-serif' }}
+                style={{ fontFamily: "var(--font-inter), sans-serif" }}
                 rows={2}
               />
               <div className="absolute bottom-2 right-3 text-[10px] text-text-main/30">
@@ -192,10 +213,13 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
               <div
                 draggable
                 onDragStart={(e) => {
-                  e.dataTransfer.setData("application/collagium", JSON.stringify({
-                    type: "text",
-                    content: placement.text_content
-                  }));
+                  e.dataTransfer.setData(
+                    "application/collagium",
+                    JSON.stringify({
+                      type: "text",
+                      content: placement.text_content,
+                    }),
+                  );
                 }}
                 className="flex cursor-grab items-center justify-center gap-2 rounded-xl bg-black/10 dark:bg-white/10 py-2 text-xs font-bold uppercase tracking-wider text-text-main hover:bg-black/20 dark:hover:bg-white/20 active:cursor-grabbing"
               >
@@ -209,12 +233,16 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
       {/* Frame Selector (only for images) */}
       {placement.element_type === "image" && (
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider opacity-40">Frame Style</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider opacity-40">
+            Frame Style
+          </span>
           <div className="flex gap-2">
             {frames.map((f) => (
               <button
                 key={f.id}
-                onClick={() => placement.setTransform({ frame: f.id as any })}
+                onClick={() =>
+                  placement.setTransform({ frame: f.id as ImageFrame })
+                }
                 className={[
                   "shrink-0 rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all",
                   placement.frame === f.id
@@ -269,7 +297,7 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
             Clear
           </button>
           <button
-            className="h-10 flex-[2] rounded-xl bg-text-main px-3 text-sm font-bold text-bg-app hover:opacity-90 disabled:opacity-50"
+            className="h-10 flex-2 rounded-xl bg-text-main px-3 text-sm font-bold text-bg-app hover:opacity-90 disabled:opacity-50"
             onClick={submit}
             disabled={placement.submitting}
             type="button"
@@ -285,19 +313,21 @@ export function UploadPanel({ onSubmitted }: { onSubmitted: () => void }) {
   );
 }
 
-function ControlSlider({ 
-  label, 
-  value, 
-  onChange, 
-  ...props 
-}: { 
+function ControlSlider({
+  label,
+  value,
+  onChange,
+  ...props
+}: {
   label: string;
   value: number;
   onChange: (v: number) => void;
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value">) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="text-[10px] font-bold uppercase tracking-wider opacity-40">{label}</span>
+      <span className="text-[10px] font-bold uppercase tracking-wider opacity-40">
+        {label}
+      </span>
       <input
         type="range"
         value={value}
