@@ -6,7 +6,8 @@ export function Lightbox() {
   if (!viewingElement) return null;
 
   const getFrameClass = () => {
-    if (viewingElement.element_type === "text") return "";
+    if (viewingElement.element_type === "text" && (!viewingElement.frame || viewingElement.frame === "none")) return "";
+    
     switch (viewingElement.frame) {
       case "polaroid":
         return "bg-white p-4 pb-16 shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-sm";
@@ -17,7 +18,7 @@ export function Lightbox() {
       case "modern":
         return "bg-[#111] p-8 shadow-[0_30px_60px_rgba(0,0,0,0.6)] rounded-sm";
       default:
-        return "rounded-2xl overflow-hidden";
+        return "";
     }
   };
 
@@ -37,29 +38,31 @@ export function Lightbox() {
       </button>
 
       <div 
-        className={`relative max-h-[85vh] max-w-[90vw] transition-all duration-500 ${getFrameClass()}`}
+        className={`relative flex flex-col items-center max-h-[90vh] max-w-[95vw] transition-all duration-500 ${getFrameClass()}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {viewingElement.element_type === "text" ? (
-          <div className="flex min-h-[300px] min-w-[300px] items-center justify-center bg-black/5 dark:bg-white/5 p-12 text-center rounded-2xl overflow-hidden">
-            <h2 
-              className="text-4xl text-text-main sm:text-6xl"
-              style={{ fontFamily: "var(--font-inter), sans-serif" }}
-            >
-              {viewingElement.text_content}
-            </h2>
-          </div>
-        ) : (
-          <img 
-            src={viewingElement.url} 
-            alt="Full view" 
-            className="max-w-[80vw] max-h-[70vh] object-contain"
-          />
-        )}
+        <div className="relative flex items-center justify-center">
+          {viewingElement.element_type === "text" ? (
+            <div className={`flex min-h-[300px] min-w-[300px] items-center justify-center bg-black/5 dark:bg-white/5 p-12 text-center ${!viewingElement.frame || viewingElement.frame === "none" ? "rounded-3xl" : ""}`}>
+              <h2 
+                className="text-4xl text-text-main sm:text-6xl"
+                style={{ fontFamily: "var(--font-inter), sans-serif" }}
+              >
+                {viewingElement.text_content}
+              </h2>
+            </div>
+          ) : (
+            <img 
+              src={viewingElement.url} 
+              alt="Full view" 
+              className={`max-w-[80vw] max-h-[70vh] object-contain transition-all duration-500 ${!viewingElement.frame || viewingElement.frame === "none" ? "rounded-3xl shadow-2xl" : ""}`}
+            />
+          )}
+        </div>
         
-        <div className={`absolute inset-x-0 bottom-0 p-6 pt-12 text-text-main/80`}>
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] bg-bg-glass/40 p-2 rounded-lg backdrop-blur-xl w-fit">
-            {new Date(viewingElement.created_at).toLocaleDateString()} • {viewingElement.element_type}
+        <div className="mt-4 flex w-full justify-center text-text-main/40">
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] bg-bg-app/40 px-3 py-1.5 rounded-full backdrop-blur-xl border border-border-glass">
+            {new Date(viewingElement.created_at).toLocaleDateString()}
           </div>
         </div>
       </div>
