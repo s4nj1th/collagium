@@ -24,7 +24,7 @@ export function Lightbox() {
 
   return (
     <div 
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-bg-app/80 backdrop-blur-xl animate-in fade-in duration-300 p-6"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-bg-app/80 backdrop-blur-xl animate-in fade-in duration-300 p-6"
       onClick={() => setViewingElement(null)}
     >
       <button 
@@ -38,7 +38,7 @@ export function Lightbox() {
       </button>
 
       <div 
-        className={`relative flex flex-col items-center max-h-[90vh] max-w-[95vw] transition-all duration-500 ${getFrameClass()}`}
+        className={`mx-auto max-h-[90vh] max-w-[95vw] transition-all duration-500 w-fit ${getFrameClass()}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative flex items-center justify-center">
@@ -55,17 +55,17 @@ export function Lightbox() {
             <img 
               src={viewingElement.url} 
               alt="Full view" 
-              className={`max-w-[80vw] max-h-[70vh] object-contain transition-all duration-500 ${!viewingElement.frame || viewingElement.frame === "none" ? "rounded-3xl shadow-2xl" : ""}`}
+              className={`max-w-[80vw] max-h-[70vh] object-contain transition-all duration-500 ${!viewingElement.frame || viewingElement.frame === "none" ? "rounded-lg shadow-2xl" : ""}`}
             />
           )}
         </div>
-        
-        <div className="mt-4 flex w-full justify-center text-text-main/40">
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] bg-bg-app/40 px-3 py-1.5 rounded-full backdrop-blur-xl border border-border-glass">
+      </div>
+
+        <div className="mt-4 flex w-full justify-center text-text-main/60">
+          <div className="text-[10px] font-bold uppercase tracking-[0.2em] bg-bg-glass/40 px-3 py-1.5 rounded-xl backdrop-blur-xl border border-border-glass">
             {new Date(viewingElement.created_at).toLocaleDateString()}
           </div>
         </div>
-      </div>
     </div>
   );
 }
