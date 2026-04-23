@@ -14,6 +14,8 @@ import { useThemeStore } from "@/app/lib/useThemeStore";
 import Link from "next/link";
 import { BsCamera } from "react-icons/bs";
 
+import { InfoButton } from "@/app/ui/canvas/InfoButton";
+
 export function CollageCanvasPage() {
   const canvasRef = useRef<CollageCanvasHandle>(null);
   const [approved, setApproved] = useState<CollageImage[]>([]);
@@ -169,6 +171,7 @@ export function CollageCanvasPage() {
         </div>
       </div>
 
+      <InfoButton />
       <Lightbox />
     </div>
   );
